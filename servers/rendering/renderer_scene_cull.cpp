@@ -1477,7 +1477,7 @@ void RendererSceneCull::_update_instance_visibility_dependencies(Instance *p_ins
 		vd.range_end = p_instance->visibility_range_end;
 		vd.range_begin_margin = p_instance->visibility_range_begin_margin;
 		vd.range_end_margin = p_instance->visibility_range_end_margin;
-		vd.position = p_instance->transformed_aabb.get_center();
+		vd.position = p_instance->transform.origin;
 		vd.array_index = p_instance->array_index;
 		vd.fade_mode = p_instance->visibility_range_fade_mode;
 
@@ -1856,7 +1856,7 @@ void RendererSceneCull::_update_instance(Instance *p_instance) const {
 	}
 
 	if (p_instance->visibility_index != -1) {
-		p_instance->scenario->instance_visibility[p_instance->visibility_index].position = p_instance->transformed_aabb.get_center();
+		p_instance->scenario->instance_visibility[p_instance->visibility_index].position = instance_xform->origin;
 	}
 
 	//move instance and repair
