@@ -42,6 +42,7 @@
 #include "core/object/class_db.h"
 #include "core/object/script_language.h"
 #include "core/os/os.h"
+#include "servers/audio/audio_server.h"
 #include "servers/display/display_server.h"
 
 class RemoteDebugger::PerformanceProfiler : public EngineProfiler {
@@ -531,6 +532,9 @@ void RemoteDebugger::debug(bool p_can_continue, bool p_is_error_breakpoint) {
 				script_paths_to_reload = data;
 			} else if (command == "reload_all_scripts") {
 				reload_all_scripts = true;
+			} else if (command == "reload_audio_bus_layout") {
+				reload_audio_bus_layout = true;
+				audio_bus_layout_path = data.is_empty() ? String() : String(data[0]);
 			} else if (command == "breakpoint") {
 				ERR_FAIL_COND(data.size() < 3);
 				bool set = data[2];
@@ -716,6 +720,19 @@ void RemoteDebugger::poll_events(bool p_is_idle) {
 			}
 		}
 		script_paths_to_reload.clear();
+
+		if (reload_audio_bus_layout) {
+			const String layout_path = audio_bus_layout_path.is_empty() ? String(GLOBAL_GET("audio/buses/default_bus_layout")) : audio_bus_layout_path;
+			Error err = OK;
+			Ref<AudioBusLayout> layout = ResourceLoader::load(layout_path, "AudioBusLayout", ResourceFormatLoader::CACHE_MODE_IGNORE, &err);
+			if (err == OK && layout.is_valid()) {
+				AudioServer::get_singleton()->set_bus_layout(layout);
+			} else {
+				ERR_PRINT(vformat("Could not reload audio bus layout '%s': %s", layout_path, error_names[err]));
+			}
+			audio_bus_layout_path.clear();
+			reload_audio_bus_layout = false;
+		}
 	}
 }
 
@@ -725,6 +742,9 @@ Error RemoteDebugger::_core_capture(const String &p_cmd, const Array &p_data, bo
 		script_paths_to_reload = p_data;
 	} else if (p_cmd == "reload_all_scripts") {
 		reload_all_scripts = true;
+	} else if (p_cmd == "reload_audio_bus_layout") {
+		reload_audio_bus_layout = true;
+		audio_bus_layout_path = p_data.is_empty() ? String() : String(p_data[0]);
 	} else if (p_cmd == "breakpoint") {
 		ERR_FAIL_COND_V(p_data.size() < 3, ERR_INVALID_DATA);
 		bool set = p_data[2];

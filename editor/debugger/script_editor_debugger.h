@@ -380,6 +380,7 @@ public:
 
 	void reload_all_scripts();
 	void reload_scripts(const Vector<String> &p_script_paths);
+	void reload_audio_bus_layout(const String &p_layout_path);
 
 	bool is_skip_breakpoints() const;
 	bool is_ignore_error_breaks() const;

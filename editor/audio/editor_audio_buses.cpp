@@ -39,6 +39,7 @@
 #include "core/os/keyboard.h"
 #include "editor/docks/editor_dock_manager.h"
 #include "editor/docks/filesystem_dock.h"
+#include "editor/debugger/editor_debugger_node.h"
 #include "editor/editor_node.h"
 #include "editor/editor_string_names.h"
 #include "editor/editor_undo_redo_manager.h"
@@ -1439,6 +1440,10 @@ void EditorAudioBuses::_server_save() {
 		ProjectSettings::get_singleton()->set_setting("audio/buses/default_bus_layout", edited_path);
 	} else {
 		ResourceSaver::save(state, ResourceUID::ensure_path(edited_path));
+	}
+
+	if (EditorDebuggerNode::get_singleton()) {
+		EditorDebuggerNode::get_singleton()->reload_audio_bus_layout(ResourceUID::ensure_path(edited_path));
 	}
 }
 

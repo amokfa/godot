@@ -687,6 +687,12 @@ void EditorDebuggerNode::reload_scripts(const Vector<String> &p_script_paths) {
 	});
 }
 
+void EditorDebuggerNode::reload_audio_bus_layout(const String &p_layout_path) {
+	_for_all(tabs, [&](ScriptEditorDebugger *dbg) {
+		dbg->reload_audio_bus_layout(p_layout_path);
+	});
+}
+
 void EditorDebuggerNode::debug_next() {
 	get_current_debugger()->debug_next();
 }

@@ -1779,6 +1779,12 @@ void ScriptEditorDebugger::reload_scripts(const Vector<String> &p_script_paths) 
 	_put_msg("reload_scripts", Variant(p_script_paths).operator Array(), debugging_thread_id != Thread::UNASSIGNED_ID ? debugging_thread_id : Thread::MAIN_ID);
 }
 
+void ScriptEditorDebugger::reload_audio_bus_layout(const String &p_layout_path) {
+	Array msg_data;
+	msg_data.push_back(p_layout_path);
+	_put_msg("reload_audio_bus_layout", msg_data, debugging_thread_id != Thread::UNASSIGNED_ID ? debugging_thread_id : Thread::MAIN_ID);
+}
+
 bool ScriptEditorDebugger::is_skip_breakpoints() const {
 	return skip_breakpoints_value;
 }

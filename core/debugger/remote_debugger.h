@@ -71,7 +71,9 @@ private:
 	int warn_count = 0;
 	int last_reset = 0;
 	bool reload_all_scripts = false;
+	bool reload_audio_bus_layout = false;
 	Array script_paths_to_reload;
+	String audio_bus_layout_path;
 
 	// Make handlers and send_message thread safe.
 	Mutex mutex;
