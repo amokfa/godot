@@ -5163,6 +5163,9 @@ bool Main::iteration() {
 	}
 #endif
 
+	if (exit && movie_writer) {
+		movie_writer->flush_pending_readbacks();
+	}
 	if (fixed_fps != -1) {
 		return exit;
 	}

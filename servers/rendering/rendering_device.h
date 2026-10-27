@@ -467,6 +467,7 @@ public:
 	Error texture_update(RID p_texture, uint32_t p_layer, const Vector<uint8_t> &p_data);
 	Vector<uint8_t> texture_get_data(RID p_texture, uint32_t p_layer); // CPU textures will return immediately, while GPU textures will most likely force a flush
 	Error texture_get_data_async(RID p_texture, uint32_t p_layer, const Callable &p_callback);
+	void flush_pending_texture_readbacks();
 
 	bool texture_is_format_supported_for_usage(DataFormat p_format, BitField<TextureUsageBits> p_usage) const;
 	bool texture_is_shared(RID p_texture);

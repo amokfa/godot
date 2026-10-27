@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/io/image.h"
+#include "core/object/worker_thread_pool.h"
 #include "core/templates/local_vector.h"
 #include "servers/audio/audio_server.h"
 
@@ -48,10 +49,32 @@ class MovieWriter : public Object {
 	float cpu_time = 0.0f;
 	float gpu_time = 0.0f;
 	uint64_t encoding_time_usec = 0;
+	uint64_t recording_start_usec = 0;
 
 	String project_name;
 
 	LocalVector<int32_t> audio_mix_buffer;
+	struct PendingFrame {
+		MovieWriter *writer = nullptr;
+		Ref<Image> image;
+		Vector<int32_t> audio;
+		Vector<uint8_t> encoded;
+		Size2i size;
+		Size2i source_size;
+		bool hdr = false;
+		bool allow_rgb_resize = false;
+		bool ready = false;
+		int64_t id = 0;
+		WorkerThreadPool::TaskID task = WorkerThreadPool::INVALID_TASK_ID;
+	};
+	LocalVector<PendingFrame *> pending_frames;
+	int64_t next_frame_id = 0;
+	uint32_t pending_readbacks = 0;
+	static void _prepare_frame(void *p_frame);
+	static bool _resize_rgba_frame(PendingFrame *p_frame);
+	void _readback_complete(const Vector<uint8_t> &p_data, int64_t p_id);
+	void _start_preparing_frame(PendingFrame *p_frame);
+	void _write_pending_frame();
 
 	enum {
 		MAX_WRITERS = 8
@@ -66,6 +89,9 @@ protected:
 	virtual Error write_begin(const Size2i &p_movie_size, uint32_t p_fps, const String &p_base_path);
 	virtual Error write_frame(const Ref<Image> &p_image, const int32_t *p_audio_data);
 	virtual void write_end();
+	virtual bool can_prepare_frames_async() const { return false; }
+	virtual Vector<uint8_t> encode_frame_async(const Ref<Image> &p_image) { return Vector<uint8_t>(); }
+	virtual Error write_encoded_frame(const Vector<uint8_t> &p_encoded, const int32_t *p_audio_data) { return ERR_UNAVAILABLE; }
 
 	GDVIRTUAL0RC_REQUIRED(uint32_t, _get_audio_mix_rate)
 	GDVIRTUAL0RC_REQUIRED(AudioServer::SpeakerMode, _get_audio_speaker_mode)
@@ -88,6 +114,7 @@ public:
 
 	void begin(const Size2i &p_movie_size, uint32_t p_fps, const String &p_base_path);
 	void add_frame();
+	void flush_pending_readbacks();
 
 	static void set_extensions_hint();
 

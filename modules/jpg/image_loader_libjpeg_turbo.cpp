@@ -119,13 +119,14 @@ static Vector<uint8_t> _jpeg_turbo_buffer_save_func(const Ref<Image> &p_img, flo
 
 	ERR_FAIL_COND_V(p_img.is_null() || p_img->is_empty(), output);
 
-	Ref<Image> image = p_img->duplicate();
+	Ref<Image> image = p_img;
 	if (image->is_compressed()) {
+		image = image->duplicate();
 		Error error = image->decompress();
 		ERR_FAIL_COND_V_MSG(error != OK, output, "Couldn't decompress image.");
 	}
 
-	if (image->get_format() != Image::FORMAT_RGB8) {
+	if (image->get_format() != Image::FORMAT_RGB8 && image->get_format() != Image::FORMAT_RGBA8) {
 		// Allow grayscale L8?
 		image = image->duplicate();
 		image->convert(Image::FORMAT_RGB8);
@@ -160,7 +161,7 @@ static Vector<uint8_t> _jpeg_turbo_buffer_save_func(const Ref<Image> &p_img, flo
 			image->get_width(),
 			0,
 			image->get_height(),
-			TJPF_RGB,
+			image->get_format() == Image::FORMAT_RGBA8 ? TJPF_RGBA : TJPF_RGB,
 			&jpeg_buff,
 			&jpeg_size);
 

@@ -2789,6 +2789,11 @@ Vector<uint8_t> RenderingDevice::texture_get_data(RID p_texture, uint32_t p_laye
 	}
 }
 
+void RenderingDevice::flush_pending_texture_readbacks() {
+	ERR_RENDER_THREAD_GUARD();
+	_flush_and_stall_for_all_frames();
+}
+
 Error RenderingDevice::texture_get_data_async(RID p_texture, uint32_t p_layer, const Callable &p_callback) {
 	ERR_RENDER_THREAD_GUARD_V(ERR_UNAVAILABLE);
 

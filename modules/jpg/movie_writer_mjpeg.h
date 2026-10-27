@@ -63,6 +63,9 @@ protected:
 	virtual Error write_begin(const Size2i &p_movie_size, uint32_t p_fps, const String &p_base_path) override;
 	virtual Error write_frame(const Ref<Image> &p_image, const int32_t *p_audio_data) override;
 	virtual void write_end() override;
+	virtual bool can_prepare_frames_async() const override { return true; }
+	virtual Vector<uint8_t> encode_frame_async(const Ref<Image> &p_image) override;
+	virtual Error write_encoded_frame(const Vector<uint8_t> &p_encoded, const int32_t *p_audio_data) override;
 
 	virtual bool handles_file(const String &p_path) const override;
 
